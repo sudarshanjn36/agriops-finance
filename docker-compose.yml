@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: agriops_postgres
+
+    environment:
+      POSTGRES_DB: agriops_db
+      POSTGRES_USER: agri_user
+      POSTGRES_PASSWORD: agri_pass
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build: ./backend
+
+    container_name: agriops_backend
+
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      - postgres
+
+    environment:
+      DATABASE_URL: postgresql://agri_user:agri_pass@postgres:5432/agriops_db
+
+  frontend:
+    build: ./frontend
+
+    container_name: agriops_frontend
+
+    ports:
+      - "8501:8501"
+
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
