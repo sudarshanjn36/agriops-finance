@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+postgres_data/
+*.db
+.DS_Store
+.vscode/
+.idea/
