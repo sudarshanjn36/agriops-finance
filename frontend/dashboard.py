@@ -86,8 +86,57 @@ if income_response.status_code == 200 and expense_response.status_code == 200:
     if not expense_df.empty:
         st.write("Expense Data")
         st.dataframe(expense_df)
+st.subheader("Financial Visual Analytics")
+
+income_df = pd.DataFrame()
+expense_df = pd.DataFrame()
+
+try:
+    income_response = requests.get(f"{API_URL}/income/")
+    expense_response = requests.get(f"{API_URL}/expenses/")
+
+    if income_response.status_code == 200:
+        income_df = pd.DataFrame(income_response.json())
+    else:
+        st.error(f"Could not load income data: {income_response.status_code}")
+
+    if expense_response.status_code == 200:
+        expense_df = pd.DataFrame(expense_response.json())
+    else:
+        st.error(f"Could not load expense data: {expense_response.status_code}")
+
+except Exception as e:
+    st.error(f"Could not load income/expense data: {e}")
+
+
+if not income_df.empty:
+    st.write("Income Data")
+    st.dataframe(income_df)
+
+    fig_income = px.bar(
+        income_df,
+        x="crop_name",
+        y="total_amount",
+        title="Income by Crop"
+    )
+    st.plotly_chart(fig_income, use_container_width=True)
 else:
-    st.error("Could not load income/expense data")
+    st.info("No income data available yet.")
+
+
+if not expense_df.empty:
+    st.write("Expense Data")
+    st.dataframe(expense_df)
+
+    fig_expense = px.pie(
+        expense_df,
+        names="category",
+        values="amount",
+        title="Expense Breakdown by Category"
+    )
+    st.plotly_chart(fig_expense, use_container_width=True)
+else:
+    st.info("No expense data available yet.")
 
 if not income_df.empty:
     fig_income = px.bar(
