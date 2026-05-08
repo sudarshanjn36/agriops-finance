@@ -8,84 +8,84 @@ API_URL = os.getenv("API_URL", "https://agriops-finance-1.onrender.com")
 
 st.set_page_config(page_title="AgriOps Finance", layout="wide")
 
-st.title("Dashboard")
+st.title("AgriOps Finance Dashboard")
 
-# Fetch dashboard data
-response = requests.get(f"{API_URL}/analytics/kpis")
+# ---------------- KPIs ----------------
+try:
+    response = requests.get(f"{API_URL}/analytics/kpis")
 
-if response.status_code == 200:
-    data = response.json()
+    if response.status_code == 200:
+        data = response.json()
 
-    col1, col2, col3 = st.columns(3)
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Total Income", f"₹{data['total_income']:,.2f}")
+        col2.metric("Total Expenses", f"₹{data['total_expenses']:,.2f}")
+        col3.metric("Net Profit", f"₹{data['net_profit']:,.2f}")
 
-    col1.metric("Total Income", f"₹{data['total_income']:,.2f}")
-    col2.metric("Total Expenses", f"₹{data['total_expenses']:,.2f}")
-    col3.metric("Net Profit", f"₹{data['net_profit']:,.2f}")
+        col4, col5, col6, col7 = st.columns(4)
+        col4.metric("Revenue / Acre", f"₹{data['revenue_per_acre']:,.2f}")
+        col5.metric("Expense / Acre", f"₹{data['expense_per_acre']:,.2f}")
+        col6.metric("Yield / Acre", f"{data['yield_per_acre']:,.2f} kg")
+        col7.metric("Profit Margin", f"{data['net_profit_margin_percent']:,.2f}%")
+    else:
+        st.error(f"Backend not connected: {response.status_code}")
+        st.write(response.text)
 
-    col4, col5, col6, col7 = st.columns(4)
-
-    col4.metric("Revenue / Acre", f"₹{data['revenue_per_acre']:,.2f}")
-    col5.metric("Expense / Acre", f"₹{data['expense_per_acre']:,.2f}")
-    col6.metric("Yield / Acre", f"{data['yield_per_acre']:,.2f} kg")
-    col7.metric("Profit Margin", f"{data['net_profit_margin_percent']:,.2f}%")
-
-else:
-    st.error("Backend not connected")
+except Exception as e:
+    st.error(f"Backend not connected: {e}")
 
 
+# ---------------- Add Income ----------------
 st.subheader("Add Income")
 
 crop_name = st.text_input("Crop Name")
-quantity = st.number_input("Quantity Sold", min_value=0.0)
-price_per_unit = st.number_input("Price Per Unit", min_value=0.0)
+quantity = st.number_input("Quantity Sold", min_value=0.0, key="income_quantity")
+price_per_unit = st.number_input("Price Per Unit", min_value=0.0, key="income_price")
 
 if st.button("Add Income"):
-    requests.post(
+    response = requests.post(
         f"{API_URL}/income/",
-        params={
+        json={
             "crop_name": crop_name,
             "quantity": quantity,
             "price_per_unit": price_per_unit
         }
     )
-    st.success("Income added successfully")
+
+    if response.status_code in [200, 201]:
+        st.success("Income added successfully")
+        st.rerun()
+    else:
+        st.error(f"Failed to add income: {response.status_code}")
+        st.write(response.text)
 
 
+# ---------------- Add Expense ----------------
 st.subheader("Add Expense")
 
 category = st.text_input("Expense Category")
-amount = st.number_input("Expense Amount", min_value=0.0)
+amount = st.number_input("Expense Amount", min_value=0.0, key="expense_amount")
 description = st.text_input("Description")
 
 if st.button("Add Expense"):
-    requests.post(
+    response = requests.post(
         f"{API_URL}/expenses/",
-        params={
+        json={
             "category": category,
             "amount": amount,
             "description": description
         }
     )
-    st.success("Expense added successfully")
+
+    if response.status_code in [200, 201]:
+        st.success("Expense added successfully")
+        st.rerun()
+    else:
+        st.error(f"Failed to add expense: {response.status_code}")
+        st.write(response.text)
 
 
-income_response = requests.get(f"{API_URL}/income/")
-expense_response = requests.get(f"{API_URL}/expenses/")
-
-if income_response.status_code == 200 and expense_response.status_code == 200:
-    income_data = income_response.json()
-    expense_data = expense_response.json()
-
-    income_df = pd.DataFrame(income_data)
-    expense_df = pd.DataFrame(expense_data)
-
-    if not income_df.empty:
-        st.write("Income Data")
-        st.dataframe(income_df)
-
-    if not expense_df.empty:
-        st.write("Expense Data")
-        st.dataframe(expense_df)
+# ---------------- Visual Analytics ----------------
 st.subheader("Financial Visual Analytics")
 
 income_df = pd.DataFrame()
@@ -137,21 +137,3 @@ if not expense_df.empty:
     st.plotly_chart(fig_expense, use_container_width=True)
 else:
     st.info("No expense data available yet.")
-
-if not income_df.empty:
-    fig_income = px.bar(
-        income_df,
-        x="crop_name",
-        y="total_amount",
-        title="Income by Crop"
-    )
-    st.plotly_chart(fig_income, use_container_width=True)
-
-if not expense_df.empty:
-    fig_expense = px.pie(
-        expense_df,
-        names="category",
-        values="amount",
-        title="Expense Breakdown by Category"
-    )
-    st.plotly_chart(fig_expense, use_container_width=True)
