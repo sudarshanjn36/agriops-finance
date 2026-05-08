@@ -1,9 +1,10 @@
+import os
 import streamlit as st
 import requests
 import pandas as pd
 import plotly.express as px
 
-API_URL = "http://backend:8000"
+API_URL = os.getenv("API_URL", "http://backend:8000")
 
 st.set_page_config(page_title="AgriOps Finance", layout="wide")
 
