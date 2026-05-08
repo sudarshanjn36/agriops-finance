@@ -4,7 +4,7 @@ import requests
 import pandas as pd
 import plotly.express as px
 
-API_URL = os.getenv("API_URL", "http://backend:8000")
+API_URL = os.getenv("API_URL", "https://agriops-finance-1.onrender.com")
 
 st.set_page_config(page_title="AgriOps Finance", layout="wide")
 
