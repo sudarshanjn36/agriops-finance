@@ -8,7 +8,7 @@ API_URL = os.getenv("API_URL", "https://agriops-finance-1.onrender.com")
 
 st.set_page_config(page_title="AgriOps Finance", layout="wide")
 
-st.title("AgriOps Finance Dashboard")
+st.title("Finance Dashboard")
 
 # ---------------- KPIs ----------------
 try:
