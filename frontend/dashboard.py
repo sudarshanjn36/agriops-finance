@@ -97,9 +97,7 @@ try:
 
     if income_response.status_code == 200:
         income_df = pd.DataFrame(income_response.json())
-        income_df["created_at"] = pd.to_datetime(
-        income_df["created_at"]
-        ).dt.strftime("%d-%m-%Y %I:%M %p")
+        income_df["created_at"] = pd.to_datetime(income_df["created_at"]).dt.strftime("%d-%m-%Y %I:%M %p")
     else:
         st.error(f"Could not load income data: {income_response.status_code}")
 
