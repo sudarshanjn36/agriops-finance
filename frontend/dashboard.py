@@ -67,7 +67,7 @@ if st.button("Add Expense"):
         }
     )
     st.success("Expense added successfully")
-st.subheader("Financial Visual Analytics")
+
 
 income_response = requests.get(f"{API_URL}/income/")
 expense_response = requests.get(f"{API_URL}/expenses/")
