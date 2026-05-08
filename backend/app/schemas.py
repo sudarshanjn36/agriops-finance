@@ -42,3 +42,26 @@ class CropResponse(CropCreate):
 
     class Config:
         from_attributes = True
+class InventoryCreate(BaseModel):
+
+    item_name: str
+
+    category: str
+
+    quantity: Decimal
+
+    unit: str
+
+    unit_price: Decimal
+
+    reorder_level: Decimal
+
+
+class InventoryResponse(InventoryCreate):
+
+    id: int
+
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

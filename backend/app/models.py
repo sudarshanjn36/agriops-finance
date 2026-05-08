@@ -34,3 +34,23 @@ class CropProduction(Base):
     selling_price_per_kg = Column(Numeric(12, 2))
     total_revenue = Column(Numeric(12, 2))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    
+class Inventory(Base):
+    __tablename__ = "inventory"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    item_name = Column(String(100))
+
+    category = Column(String(100))
+
+    quantity = Column(Numeric(12, 2))
+
+    unit = Column(String(50))
+
+    unit_price = Column(Numeric(12, 2))
+
+    reorder_level = Column(Numeric(12, 2))
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

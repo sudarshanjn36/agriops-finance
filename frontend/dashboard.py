@@ -1,5 +1,7 @@
 import streamlit as st
 import requests
+import pandas as pd
+import plotly.express as px
 
 API_URL = "http://backend:8000"
 
@@ -8,7 +10,7 @@ st.set_page_config(page_title="AgriOps Finance", layout="wide")
 st.title("AgriOps Finance Dashboard")
 
 # Fetch dashboard data
-response = requests.get(f"{API_URL}/dashboard/")
+response = requests.get(f"{API_URL}/analytics/kpis")
 
 if response.status_code == 200:
     data = response.json()
@@ -18,6 +20,14 @@ if response.status_code == 200:
     col1.metric("Total Income", f"₹{data['total_income']:,.2f}")
     col2.metric("Total Expenses", f"₹{data['total_expenses']:,.2f}")
     col3.metric("Net Profit", f"₹{data['net_profit']:,.2f}")
+
+    col4, col5, col6, col7 = st.columns(4)
+
+    col4.metric("Revenue / Acre", f"₹{data['revenue_per_acre']:,.2f}")
+    col5.metric("Expense / Acre", f"₹{data['expense_per_acre']:,.2f}")
+    col6.metric("Yield / Acre", f"{data['yield_per_acre']:,.2f} kg")
+    col7.metric("Profit Margin", f"{data['net_profit_margin_percent']:,.2f}%")
+
 else:
     st.error("Backend not connected")
 
@@ -56,3 +66,42 @@ if st.button("Add Expense"):
         }
     )
     st.success("Expense added successfully")
+st.subheader("Financial Visual Analytics")
+
+income_response = requests.get(f"{API_URL}/income/")
+expense_response = requests.get(f"{API_URL}/expenses/")
+
+if income_response.status_code == 200 and expense_response.status_code == 200:
+    income_data = income_response.json()
+    expense_data = expense_response.json()
+
+    income_df = pd.DataFrame(income_data)
+    expense_df = pd.DataFrame(expense_data)
+
+    if not income_df.empty:
+        st.write("Income Data")
+        st.dataframe(income_df)
+
+    if not expense_df.empty:
+        st.write("Expense Data")
+        st.dataframe(expense_df)
+else:
+    st.error("Could not load income/expense data")
+
+if not income_df.empty:
+    fig_income = px.bar(
+        income_df,
+        x="crop_name",
+        y="total_amount",
+        title="Income by Crop"
+    )
+    st.plotly_chart(fig_income, use_container_width=True)
+
+if not expense_df.empty:
+    fig_expense = px.pie(
+        expense_df,
+        names="category",
+        values="amount",
+        title="Expense Breakdown by Category"
+    )
+    st.plotly_chart(fig_expense, use_container_width=True)
