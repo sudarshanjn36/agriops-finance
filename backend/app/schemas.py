@@ -65,3 +65,18 @@ class InventoryResponse(InventoryCreate):
 
     class Config:
         from_attributes = True
+
+class BalanceSheetCreate(BaseModel):
+    item_name: str
+    item_type: str
+    category: str
+    amount: Decimal
+    description: str | None = None
+
+
+class BalanceSheetResponse(BalanceSheetCreate):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

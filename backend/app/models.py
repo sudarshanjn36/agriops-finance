@@ -54,3 +54,14 @@ class Inventory(Base):
     reorder_level = Column(Numeric(12, 2))
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class BalanceSheetItem(Base):
+    __tablename__ = "balance_sheet_items"
+
+    id = Column(Integer, primary_key=True, index=True)
+    item_name = Column(String(150))
+    item_type = Column(String(50))
+    category = Column(String(100))
+    amount = Column(Numeric(12, 2))
+    description = Column(String)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
